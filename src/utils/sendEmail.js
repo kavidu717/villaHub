@@ -2,12 +2,17 @@ import nodemailer from "nodemailer";
 
 
 const sendEmail = async (options) => {
+    const smtpPort = Number(process.env.SMTP_PORT || 587);
+    const smtpUser = process.env.SMTP_USER || process.env.EMAIL;
+    const smtpPass = process.env.SMTP_PASS || process.env.BREVO_PASSWORD || process.env.EMAIL_PASSWORD;
+
     const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
+        port: smtpPort,
+        secure: smtpPort === 465,
         auth: {
-            user: process.env.EMAIL,
-            pass: process.env.BREVO_PASSWORD,
+            user: smtpUser,
+            pass: smtpPass,
         },
     });
     const mailOptions = {
@@ -18,3 +23,5 @@ const sendEmail = async (options) => {
     };
     await transporter.sendMail(mailOptions);
 };
+
+export default sendEmail;
