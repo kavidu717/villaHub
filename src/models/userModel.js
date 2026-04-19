@@ -1,6 +1,7 @@
  import mongoose from "mongoose";
- import bcrypt from "bcryptjs"
+ import bcrypt from "bcrypt"
  import CryptoJS from "crypto-js";
+ import crypto from "node:crypto";
 
 
  const userSchema= new mongoose.Schema({
@@ -50,7 +51,7 @@
 
  userSchema.pre("save",async function(next){
     if(!this.isModified("password")){
-        next()
+   
     }
     const salt=await bcrypt.genSalt(10)
     this.password=await bcrypt.hash(this.password,salt)
@@ -60,7 +61,7 @@
     return await bcrypt.compare(enterpassword,this.password)
  }
 
- userSchema.methods.genetrateToken=function(){
+ userSchema.methods.genetrateToken=function(type){
     const token=crypto.randomBytes(20).toString("hex")
     const hashToken=crypto.createHash("sha256").update(token).digest("hex")
 
