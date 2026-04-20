@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import crypto from 'crypto';
 import sendEmail from "../utils/sendEmail.js";
+import jsonwebtoken from "jsonwebtoken";
 
 export const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
@@ -75,3 +76,55 @@ export const verifyEmail = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+  try{
+     const user =await User.findOne({email})
+
+     if(!user){
+      return res.status(400).json({
+        success:false,
+        message:"email or password is in correct"
+      })
+     }
+
+     if(!user.isVerified){
+      return res.status(400).json({
+        success:false,
+        message:"Please verify your email before logging in"
+      })
+     }
+     const isMatch = await user.matchPassword(password)
+     if(!isMatch){
+      return res.status(400).json({
+        success:false,
+        message:"email or password is in correct"
+      })
+     }
+
+     const token = jsonwebtoken.sign({id:user._id,role:user.role},process.env.JWT_SECRET_KEY,{expiresIn:"7d"})
+     const {password,...userWithoutPassword}=user._doc
+
+     res.status(200).json({
+      success:true,
+      user:userWithoutPassword,
+      token
+     })
+     
+
+
+
+
+
+  }catch(err){
+   res.status(500).
+   json(
+    {
+      success:false,
+      message:"Something went wrong"
+    }
+   ) 
+  }
+}
+
