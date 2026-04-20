@@ -85,7 +85,7 @@ export const loginUser = async (req, res) => {
      if(!user){
       return res.status(400).json({
         success:false,
-        message:"email or password is in correct"
+        message:"email or password is in correct    hi"
       })
      }
 
@@ -96,15 +96,25 @@ export const loginUser = async (req, res) => {
       })
      }
      const isMatch = await user.matchPassword(password)
+
+      console.log("--- DEBUG LOGIN ---");
+    console.log("Input Password (from Postman):", password);
+    console.log("Stored Hashed Password (from DB):", user.password);
+    console.log("Do they match?", isMatch);
+    console.log("-------------------");
+
+
+
      if(!isMatch){
       return res.status(400).json({
         success:false,
         message:"email or password is in correct"
+
       })
      }
 
      const token = jsonwebtoken.sign({id:user._id,role:user.role},process.env.JWT_SECRET_KEY,{expiresIn:"7d"})
-     const {password,...userWithoutPassword}=user._doc
+     const {password:existingPassword,...userWithoutPassword}=user._doc
 
      res.status(200).json({
       success:true,
@@ -122,7 +132,7 @@ export const loginUser = async (req, res) => {
    json(
     {
       success:false,
-      message:"Something went wrong"
+      message:err.message
     }
    ) 
   }
