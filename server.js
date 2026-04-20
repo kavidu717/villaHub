@@ -3,12 +3,16 @@ import { connectDB } from './src/config/db.js'
 import authRouter from './src/routes/authRoute.js'
 import bodyParser from 'body-parser'
 import vilaRouter from './src/routes/vilaRoute.js'
+import connectCloudinary from './src/config/cloudinary.js'
+
 
 
 
 
 const app = express()
+connectCloudinary()
 connectDB()
+
 app.use(bodyParser.json())
 
 

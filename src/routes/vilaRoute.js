@@ -1,5 +1,5 @@
 import express from "express";
-import { createVilla, getVillas, getVillaById } from "../controllers/villaController.js";
+import { createVilla, getVillas, getVillaById, updateVilla, deleteVilla } from "../controllers/villaController.js";
 import { protect, admin } from "../middleware/authMiddleware.js";
 
 
@@ -14,6 +14,9 @@ router.get("/:id",getVillaById)
 
 // this is protected route
 router.post("/",protect,admin,createVilla)
+router.put("/:id",protect,admin,updateVilla)
+router.delete("/:id",protect,admin,deleteVilla)
+
 
 
 

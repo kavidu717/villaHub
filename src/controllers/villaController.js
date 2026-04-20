@@ -75,3 +75,57 @@ export const getVillaById=async(req,res)=>{
     }
     
 }
+
+export const updateVilla=async(req,res)=>{
+    try{
+        const updateVilla=await Villa.findByIdAndUpdate(req.params.id,
+            {$set:req.body },
+            {new:true,runValidators:true}
+
+        )
+        if(!updateVilla){
+            return res.status(404).json({
+                success:false,
+                message:"villa not found"
+            })
+        }
+        res.status(200).json({
+            success:true,
+            message:"villa updated successfully",
+            villa:updateVilla
+        })
+    }
+    catch(error){
+        res.status(500).
+        json(
+            {
+                message:error.message
+            }
+        )
+    }
+}
+
+export const deleteVilla=async(req,res)=>{
+    try{
+        const villa=await Villa.findById(req.params.id)
+        if(!villa){
+            return res.status(404).json({
+                success:false,
+                message:"villa not found"
+            })
+        }
+        await villa.deleteOne()
+        res.status(200).json({
+            success:true,
+            message:"villa deleted successfully"
+        })
+
+    }catch(error){
+        res.status(500).
+        json(
+            {
+                message:error.message
+            }
+        )
+    }
+}
