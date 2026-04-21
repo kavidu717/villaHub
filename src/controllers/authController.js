@@ -220,6 +220,53 @@ export const getAllUsers = async (req, res) => {
     
   }
 }
+
+export const getMyProfile=async(req,res)=>{
+  try{
+    const user=await User.findById(req.user._id).select("-password")
+    res.status(200).json({
+      success:true,
+      data:user
+      
+    })
+  }
+
+  catch(err){
+    res.status(500).
+    json(
+      {
+        success:false,
+        message:err.message
+      }
+    )
+  }
+}
+
+export const updateMyProfile=async(req,res)=>{
+  try{
+    const {name,email}=req.body
+    const user =await User.findByIdAndUpdate(
+      req.user._id,
+      {name,email},
+      {new:true,runValidators:true}
+    ).select("-password")
+
+    res.status(200).json({
+      success:true,
+      data:user
+    })
+
+  }
+  catch(err){
+    res.status(500).
+    json(
+      {
+        success:false,
+        message:err.message
+      }
+    )
+  }
+}
       
 
 

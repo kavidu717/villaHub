@@ -84,3 +84,22 @@ export const createBooking=async(req,res)=>{
 
 }
 
+export const getMyBookings=async(req,res)=>{
+    try{
+        const bookings=await Booking.find({user:req.user._id}).populate("villa","name,photos,pricePerNight").sort("-createdAt")
+        res.status(200).json({
+            success:true,
+          
+            data:bookings
+        })
+    }
+    catch(error){
+        res.status(500).
+        json(
+            {
+                message:error.message
+            }
+        )
+    }
+}
+
