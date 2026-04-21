@@ -138,4 +138,92 @@ export const loginUser = async (req, res) => {
   }
 }
 
+export const getAllUsers = async (req, res) => {
+  try{
+    const users=await User.find({}).select("-password").sort("-createdAt")
+
+    res.status(200).json({
+      success:true,
+      count:users.length,
+      data:users
+    })
+
+  }catch(err){
+    res.status(500).
+    json(
+      {
+        success:false,
+        message:err.message
+      }
+    )
+  }
+}
+
+ export const toggleBlockUser=async(req,res)=>{
+  try{
+    const user=await User.findById(req.params.id)
+    if(!user){
+      return res.status(404).json({
+        success:false,
+        message:"user not found"
+      })
+    }
+    if(user._id.toString()===req.user._id.toString()){
+      return res.status(400).json({
+        success:false,
+        message:"you can't block yourself"
+      })
+
+    }
+
+    user.isBlocked=!user.isBlocked
+    await user.save()
+    res.status(200).json({
+      success:true,
+      message:"user blocked successfully"
+    })
+
+  }catch(err){
+    res.status(500).
+    json(
+      {
+        success:false,
+        message:err.message
+      }
+    )
+  }
+ }
+
+ export const deleteUser=async(req,res)=>{
+  try{
+    const user=await User.findById(req.params.id)
+    if(!user){
+      return res.status(404).json({
+        success:false,
+        message:"user not found"
+      })
+    }
+    await user.findOneAndDelete(req.params.id)
+    res.status(200).json({
+      success:true,
+      message:"user deleted successfully"
+    })
+  }
+  catch(err){
+    res.status(500).
+    json(
+      {
+        success:false,
+        message:err.message
+      }
+    )
+    
+  }
+}
+      
+
+
+
+
+
 
