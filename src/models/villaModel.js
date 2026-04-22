@@ -38,7 +38,8 @@ const villaSchema= new mongoose.Schema({
     },
     photos:{
         url:{type:String},
-        public_id:{type:String}
+        public_id:{type:String},
+      
 
     },
     pricePerNight:{

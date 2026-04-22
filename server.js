@@ -5,7 +5,7 @@ import bodyParser from 'body-parser'
 import vilaRouter from './src/routes/vilaRoute.js'
 import connectCloudinary from './src/config/cloudinary.js'
 import bookingRouter from './src/routes/bookingRoute.js'
-
+import cors from 'cors'
 
 
 
@@ -14,6 +14,8 @@ import bookingRouter from './src/routes/bookingRoute.js'
 const app = express()
 connectCloudinary()
 connectDB()
+
+app.use(cors());
 
 app.use(bodyParser.json())
 

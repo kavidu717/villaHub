@@ -3,7 +3,39 @@ import Villa from "../models/villaModel.js";
 export const createVilla=async(req,res)=>{
     
     try{
-      const villaData={...req.body,user:req.user._id}
+      const toBoolean = (value) => value === true || value === "true";
+      const villaData = {
+        name: req.body.name,
+        location: {
+          city: req.body.city,
+          address: req.body.address,
+        },
+        description: req.body.description,
+        maxGuests: Number(req.body.maxGuests),
+        bedrooms: Number(req.body.bedrooms),
+        bathrooms: Number(req.body.bathrooms),
+        amenties: {
+          hasPool: toBoolean(req.body.hasPool),
+          hasWifi: toBoolean(req.body.hasWifi),
+          hasKitchen: toBoolean(req.body.hasKitchen),
+          hasAC: toBoolean(req.body.hasAC),
+          hasparking: toBoolean(req.body.hasParking),
+          isPetFriendly: toBoolean(req.body.isPetFriendly),
+        },
+        pricePerNight: Number(req.body.pricePerNight),
+        featured: toBoolean(req.body.isFeatured),
+        user:req.user._id
+      };
+
+      if(req.files && req.files.length>0){
+        const firstFile = req.files[0];
+        villaData.photos = {
+          url: firstFile.path,
+          public_id: firstFile.filename
+        };
+      }
+
+
       const newVilla=new Villa(villaData)
       const  saveVilla=await newVilla.save()
 
