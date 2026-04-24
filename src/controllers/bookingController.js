@@ -20,7 +20,7 @@ export const createBooking=async(req,res)=>{
         const existingBooking=await Booking.findOne({
             villa:villaId,
             status:"confirmed",
-            $or:[
+            $and:[
                 {checkInDate:{$lt:checkOut}},
                 {checkOutDate:{$gt:checkIn}}
             ]
