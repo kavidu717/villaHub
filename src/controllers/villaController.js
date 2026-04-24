@@ -96,7 +96,7 @@ export const getVillaById=async(req,res)=>{
          
         res.status(200).json({
             success:true,
-            villa
+            data:villa
         })
     }
     catch(error){
