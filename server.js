@@ -6,6 +6,7 @@ import vilaRouter from './src/routes/vilaRoute.js'
 import connectCloudinary from './src/config/cloudinary.js'
 import bookingRouter from './src/routes/bookingRoute.js'
 import cors from 'cors'
+import paymentRouter from './src/routes/paymentRoute.js'
 
 
 
@@ -27,6 +28,10 @@ app.get('/', (req, res) => {
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/villa',vilaRouter)
 app.use('/api/v1/booking',bookingRouter)
+app.use('/api/v1/payment', paymentRouter)
+
+
+
 
 
 
