@@ -7,10 +7,16 @@ import connectCloudinary from './src/config/cloudinary.js'
 import bookingRouter from './src/routes/bookingRoute.js'
 import cors from 'cors'
 import paymentRouter from './src/routes/paymentRoute.js'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 
 
 
+
+
+const PORT = process.env.PORT || 3000
 
 const app = express()
 connectCloudinary()
@@ -37,6 +43,6 @@ app.use('/api/v1/payment', paymentRouter)
 
 
 
-app.listen(3000, () => {
-  console.log(`Example app listening on port 3000`)
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}`)
 })
