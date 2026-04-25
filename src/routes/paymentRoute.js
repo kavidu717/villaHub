@@ -45,44 +45,56 @@ router.post("/payhere", (req, res) => {
 
 router.post("/notify", async (req, res) => {
   try {
-      console.log("🔥 NOTIFY HIT");
-    console.log("PAYHERE NOTIFY DATA:", req.body);
-      console.log("HEADERS:", req.headers);
+    console.log("🔥 NOTIFY HIT");
+    console.log("PAYHERE DATA:", req.body);
 
     const {
       order_id,
       payment_id,
       status_code,
-      md5sig,
-      amount,
-      currency
     } = req.body;
 
-    // 1. Check payment success
-    if (status_code !== "2") {
-      return res.status(400).send("Payment not successful");
+    // 1. Validate input
+    if (!order_id) {
+      console.log("❌ Missing order_id");
+      return res.status(400).send("Invalid order");
     }
 
-    // 2. Update booking status
-    await Booking.findByIdAndUpdate(order_id, {
-      status: "confirmed",
-      paymentStatus: "paid",
-      paymentId: payment_id
-    });
+    // 2. Check payment success
+    if (status_code !== "2") {
+      console.log("❌ Payment not successful");
+      return res.status(400).send("Payment failed");
+    }
 
-    console.log("Booking updated successfully");
+    // 3. Update booking
+    const updated = await Booking.findByIdAndUpdate(
+      order_id,
+      {
+        status: "confirmed",
+        paymentStatus: "paid",
+        paymentId: payment_id,
+      },
+      { new: true }
+    );
 
-    res.status(200).send("OK");
+    // 4. Check result
+    if (!updated) {
+      console.log("❌ Booking NOT FOUND:", order_id);
+      return res.status(404).send("Booking not found");
+    }
+
+    console.log("✅ Booking updated:", updated._id);
+
+    return res.status(200).send("OK");
+
   } catch (error) {
-   
+    console.log("❌ ERROR:", error.message);
+
     return res.status(500).json({
       success: false,
       message: error.message,
       stack: error.stack,
-      path: req.originalUrl,
     });
-
-
   }
 });
 
