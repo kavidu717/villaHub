@@ -74,8 +74,15 @@ router.post("/notify", async (req, res) => {
 
     res.status(200).send("OK");
   } catch (error) {
-    console.error("Notify error:", error);
-    res.status(500).send("Server error");
+   
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+      stack: error.stack,
+      path: req.originalUrl,
+    });
+
+
   }
 });
 
