@@ -39,6 +39,16 @@ router.post("/payhere", (req, res) => {
     .digest("hex")
     .toUpperCase();
 
+     console.log("=== PAYHERE DEBUG ===");
+  console.log({
+    merchantId,
+    orderId,
+    amountFormatted,
+    currency: "LKR",
+    hashedSecret,
+    hash
+  });
+
   res.json({ hash });
 });
 
