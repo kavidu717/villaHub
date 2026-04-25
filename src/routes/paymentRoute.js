@@ -74,7 +74,7 @@ router.post("/notify", async (req, res) => {
         paymentStatus: "paid",
         paymentId: payment_id,
       },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     // 4. Check result
