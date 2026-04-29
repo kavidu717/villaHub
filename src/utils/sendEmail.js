@@ -13,6 +13,10 @@ const sendEmail = async (options) => {
       throw new Error("Missing Brevo API key. Set BREVO_API_KEY in the environment.");
     }
 
+    if (apiKey.startsWith("xsmtpsib-")) {
+      throw new Error("BREVO_API_KEY must be a Brevo API key (xkeysib-...), not the SMTP password (xsmtpsib-...).");
+    }
+
     if (!fromEmail) {
       throw new Error("Missing SMTP_FROM_EMAIL in the environment.");
     }
