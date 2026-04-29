@@ -90,8 +90,8 @@ export const getMyBookings=async(req,res)=>{
 export const getAllBookings=async(req,res)=>{
   try{
     const bookings=await Booking.find().
-    populate("villas","name,photos,pricePerNight")
-    .populate("users","name,email")
+    populate("villa","name,photos,pricePerNight")
+    .populate("user","name,email")
     .sort("-createdAt")
     res.status(200).json({
         success:true,
