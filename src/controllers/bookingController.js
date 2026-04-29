@@ -87,3 +87,30 @@ export const getMyBookings=async(req,res)=>{
     }
 }
 
+export const getAllBookings=async(req,res)=>{
+  try{
+    const bookings=await Booking.find().
+    populate("villa","name,photos,pricePerNight")
+    .populate("user","name,email")
+    .sort("-createdAt")
+    res.status(200).json({
+        success:true,
+        count:bookings.length,
+        data:bookings
+    })
+
+
+
+  }
+  catch(error){
+    res.status(500).
+    json({
+        message:error.message
+    })
+  }
+}
+
+
+
+
+
