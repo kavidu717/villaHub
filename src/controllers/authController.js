@@ -2,6 +2,9 @@ import User from "../models/userModel.js";
 import crypto from 'crypto';
 import sendEmail from "../utils/sendEmail.js";
 import jsonwebtoken from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
@@ -180,7 +183,8 @@ export const getAllUsers = async (req, res) => {
     await user.save()
     res.status(200).json({
       success:true,
-      message:"user blocked successfully"
+      message:user.isBlocked?
+      "user blocked successfully":"user unblocked successfully"
     })
 
   }catch(err){
@@ -203,7 +207,7 @@ export const getAllUsers = async (req, res) => {
         message:"user not found"
       })
     }
-    await user.findByIdAndDelete(req.params.id)
+    await User.findByIdAndDelete(req.params.id)
     res.status(200).json({
       success:true,
       message:"user deleted successfully"
