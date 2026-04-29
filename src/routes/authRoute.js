@@ -20,7 +20,7 @@ router.put("/profile",protect,updateMyProfile);
 
 router.get("/admin/all",protect ,admin,getAllUsers);
 router.patch("/admin/block/:id",protect,admin,toggleBlockUser);
-router.delete("/admin/:id",deleteUser);
+router.delete("/admin/:id",protect,admin,deleteUser);
 
 
 
