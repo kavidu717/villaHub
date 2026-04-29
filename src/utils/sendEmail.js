@@ -1,39 +1,40 @@
-import nodemailer from "nodemailer";
+import axios from "axios"; // Backend eketh import karanna puluwan
 import dotenv from "dotenv";
 dotenv.config();
 
 const sendEmail = async (options) => {
   try {
-    // Create transporter
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT), // IMPORTANT: convert to number
-      secure: true, // true only for port 465
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.BREVO_PASSWORD,
+    const apiKey = process.env.BREVO_PASSWORD; 
+
+    const data = {
+      sender: {
+        name: process.env.SMTP_FROM_NAME || "Villa Hub",
+        email: process.env.SMTP_FROM_EMAIL,
+      },
+      to: [{ email: options.email }],
+      subject: options.subject,
+      htmlContent: options.html, // Nodemailer eke 'html' wenas wenawa 'htmlContent' walata
+    };
+
+    // Axios backend eke use karana widiya
+    const response = await axios.post("https://api.brevo.com/v3/smtp/email", data, {
+      headers: {
+        "api-key": apiKey,
+        "Content-Type": "application/json",
       },
     });
 
-    // Email content
-    const mailOptions = {
-      from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM_EMAIL}>`,
-      to: options.email,
-      subject: options.subject,
-      html: options.html,
-    };
-
-    // Send email
-    const result = await transporter.sendMail(mailOptions);
-
-    console.log("✅ Email sent successfully:", result.messageId);
-
-    return result;
+    console.log("✅ Email sent via Axios in Backend:", response.data.messageId);
+    return response.data;
 
   } catch (error) {
-    console.log("❌ EMAIL ERROR:");
-    console.log(error); // 🔥 this gives exact error
-
+    console.error("❌ BACKEND AXIOS ERROR:");
+    if (error.response) {
+      // Brevo eken dena error eka balanna
+      console.log(error.response.data);
+    } else {
+      console.log(error.message);
+    }
     throw new Error("Email sending failed");
   }
 };
