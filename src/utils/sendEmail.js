@@ -1,4 +1,6 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config();
 
 const sendEmail = async (options) => {
   try {
@@ -8,7 +10,7 @@ const sendEmail = async (options) => {
       port: Number(process.env.SMTP_PORT), // IMPORTANT: convert to number
       secure: false, // true only for port 465
       auth: {
-        user: process.env.EMAIL,
+        user: process.env.SMTP_USER,
         pass: process.env.BREVO_PASSWORD,
       },
     });
