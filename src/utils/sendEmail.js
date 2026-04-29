@@ -1,22 +1,32 @@
-import axios from "axios"; // Backend eketh import karanna puluwan
+import axios from "axios";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 const sendEmail = async (options) => {
   try {
-    const apiKey = process.env.BREVO_PASSWORD; 
+    const apiKey = process.env.BREVO_API_KEY || process.env.BREVO_PASSWORD;
+    const fromEmail = process.env.SMTP_FROM_EMAIL;
+    const fromName = process.env.SMTP_FROM_NAME || "Villa Hub";
+
+    if (!apiKey) {
+      throw new Error("Missing Brevo API key. Set BREVO_API_KEY in the environment.");
+    }
+
+    if (!fromEmail) {
+      throw new Error("Missing SMTP_FROM_EMAIL in the environment.");
+    }
 
     const data = {
       sender: {
-        name: process.env.SMTP_FROM_NAME || "Villa Hub",
-        email: process.env.SMTP_FROM_EMAIL,
+        name: fromName,
+        email: fromEmail,
       },
       to: [{ email: options.email }],
       subject: options.subject,
-      htmlContent: options.html, // Nodemailer eke 'html' wenas wenawa 'htmlContent' walata
+      htmlContent: options.html,
     };
 
-    // Axios backend eke use karana widiya
     const response = await axios.post("https://api.brevo.com/v3/smtp/email", data, {
       headers: {
         "api-key": apiKey,
@@ -24,18 +34,13 @@ const sendEmail = async (options) => {
       },
     });
 
-    console.log("✅ Email sent via Axios in Backend:", response.data.messageId);
+    console.log("Email sent via Axios in Backend:", response.data.messageId);
     return response.data;
-
   } catch (error) {
-    console.error("❌ BACKEND AXIOS ERROR:");
-    if (error.response) {
-      // Brevo eken dena error eka balanna
-      console.log(error.response.data);
-    } else {
-      console.log(error.message);
-    }
-    throw new Error("Email sending failed");
+    const apiError = error.response?.data;
+
+    console.error("BACKEND AXIOS ERROR:", apiError || error.message);
+    throw new Error(`Email sending failed: ${apiError?.message || error.message}`);
   }
 };
 
