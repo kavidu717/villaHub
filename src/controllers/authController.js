@@ -3,8 +3,13 @@ import crypto from 'crypto';
 import sendEmail from "../utils/sendEmail.js";
 import jsonwebtoken from "jsonwebtoken";
 import dotenv from "dotenv";
+import { OAuth2Client } from "google-auth-library";
 
 dotenv.config();
+
+const client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID
+);
 
 export const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
@@ -278,6 +283,84 @@ export const updateMyProfile=async(req,res)=>{
     )
   }
 }
+
+export const googleLogin = async (req, res) => {
+  try {
+    console.log("🔥 GOOGLE LOGIN ROUTE HIT");
+    console.log("BODY:", req.body);
+
+    const { credential } = req.body;
+
+    if (!credential) {
+      console.log("❌ credential missing");
+      return res.status(400).json({
+        success: false,
+        message: "Credential not received from frontend",
+      });
+    }
+
+    console.log("🔐 Verifying Google Token...");
+
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    console.log("✅ Token Verified");
+
+    const payload = ticket.getPayload();
+
+    console.log("👤 GOOGLE USER:", payload);
+
+    const { email, name, picture } = payload;
+
+    if (!email) {
+      console.log("❌ Email not found in Google payload");
+      return res.status(400).json({
+        success: false,
+        message: "Google email not found",
+      });
+    }
+
+    let user = await User.findOne({ email });
+
+    console.log("🔍 User exists:", user ? "YES" : "NO");
+
+    if (!user) {
+      console.log("🆕 Creating new user...");
+      user = await User.create({
+        name,
+        email,
+        provider: "google",
+        profileImage: picture,
+        isVerified: true,
+      });
+    }
+
+    const token = jsonwebtoken.sign(
+      { id: user._id },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "30d" }
+    );
+
+    console.log("🎟 Token generated successfully");
+
+    return res.status(200).json({
+      success: true,
+      token,
+      user,
+    });
+
+  } catch (error) {
+    console.log("🔥 GOOGLE LOGIN ERROR CAUGHT:");
+    console.log(error); // FULL ERROR
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
       
 
 

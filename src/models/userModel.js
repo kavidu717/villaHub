@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: false
     },
     role: {
         type: String,
@@ -30,6 +30,12 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+      provider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+
     verifiedToken: {
         type: String
     },
