@@ -32,8 +32,8 @@ router.post("/stripe", async (req, res) => {
       ],
 
       // Pass booking ID to success page
-      success_url: `http://localhost:5173/success?bookingId=${orderId}`,
-      cancel_url: "http://localhost:5173/cancel",
+      success_url: `https://villa-hub-frontend.vercel.app/success?bookingId=${orderId}`,
+      cancel_url: "https://villa-hub-frontend.vercel.app/cancel",
     });
 
     res.json({
