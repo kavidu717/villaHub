@@ -56,32 +56,32 @@ export const createVilla=async(req,res)=>{
     }
 }
 
-export const getVillas=async(req,res)=>{
-     const {city,featured,limit}=req.query
-    try{
-        const query={}
-        if(city) query["location.city"]=city
-        if(featured) query.featured=featured==="true"
+export const getVillas = async (req, res) => {
+  const { city, featured, limit } = req.query;
 
-        const villas=await Villa.find(query).limit(parseInt(limit) || 100)
-        
-        res.status(200).json({
-            success:true,
-            count:villas.length,
-            data:villas
-        })
-    
+  try {
+    const query = {};
 
+    if (city) query["location.city"] = city;
+    if (featured) query.featured = featured === "true";
 
-    }catch(error){
-        res.status(500).
-        json(
-            {
-                message:error.message
-            }
-        )
-    }
-}
+    const limitValue = limit ? parseInt(limit) : 0;
+
+    const villas = await Villa.find(query)
+      .sort({ createdAt: -1 })
+      .limit(limitValue);
+
+    res.status(200).json({
+      success: true,
+      count: villas.length,
+      data: villas,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 export const getVillaById=async(req,res)=>{
     try{
