@@ -1,109 +1,83 @@
 import express from "express";
-import crypto from "crypto";
+import Stripe from "stripe";
 import Booking from "../models/bookingModel.js";
-
 import dotenv from "dotenv";
-dotenv.config();
 
+dotenv.config();
 
 const router = express.Router();
 
-router.post("/payhere", (req, res) => {
-  const { orderId, amount } = req.body;
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-  
-  console.log("MERCHANT_ID:", process.env.PAYMENT_MERCHANT_ID);
-  console.log("MERCHANT_SECRET:", process.env.PAYMENT_MERCHANT_SECRET);
+// Create Stripe Checkout Session
+router.post("/stripe", async (req, res) => {
+  try {
+    const { orderId, amount } = req.body;
 
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
 
-  const merchantId = process.env.PAYMENT_MERCHANT_ID;
-  const merchantSecret = process.env.PAYMENT_MERCHANT_SECRET;
+      line_items: [
+        {
+          price_data: {
+            currency: "lkr",
+            product_data: {
+              name: `Villa Booking #${orderId}`,
+            },
+            unit_amount: Math.round(amount * 100),
+          },
+          quantity: 1,
+        },
+      ],
 
-  const hashedSecret = crypto
-    .createHash("md5")
-    .update(merchantSecret)
-    .digest("hex")
-    .toUpperCase();
+      // Pass booking ID to success page
+      success_url: `http://localhost:5173/success?bookingId=${orderId}`,
+      cancel_url: "http://localhost:5173/cancel",
+    });
 
-  const amountFormatted = parseFloat(amount).toFixed(2);
+    res.json({
+      success: true,
+      url: session.url,
+    });
+  } catch (error) {
+    console.log("Stripe Error:", error.message);
 
-  const hash = crypto
-    .createHash("md5")
-    .update(
-      merchantId +
-        orderId +
-        amountFormatted +
-        "LKR" +
-        hashedSecret
-    )
-    .digest("hex")
-    .toUpperCase();
-
-     console.log("=== PAYHERE DEBUG ===");
-  console.log({
-    merchantId,
-    orderId,
-    amountFormatted,
-    currency: "LKR",
-    hashedSecret,
-    hash
-  });
-
-  res.json({ hash });
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 });
 
-
-router.post("/notify", async (req, res) => {
+// Update booking after successful payment
+router.put("/booking/:id/paid", async (req, res) => {
   try {
-    console.log("🔥 NOTIFY HIT");
-    console.log("PAYHERE DATA:", req.body);
-
-    const {
-      order_id,
-      payment_id,
-      status_code,
-    } = req.body;
-
-    // 1. Validate input
-    if (!order_id) {
-      console.log("❌ Missing order_id");
-      return res.status(400).send("Invalid order");
-    }
-
-    // 2. Check payment success
-    if (status_code !== "2") {
-      console.log("❌ Payment not successful");
-      return res.status(400).send("Payment failed");
-    }
-
-    // 3. Update booking
-    const updated = await Booking.findByIdAndUpdate(
-      order_id,
+    const booking = await Booking.findByIdAndUpdate(
+      req.params.id,
       {
         status: "confirmed",
-        paymentStatus: "paid",
-        paymentId: payment_id,
       },
       { new: true }
     );
 
-    // 4. Check result
-    if (!updated) {
-      console.log("❌ Booking NOT FOUND:", order_id);
-      return res.status(404).send("Booking not found");
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found",
+      });
     }
 
-    console.log("✅ Booking updated:", updated._id);
-
-    return res.status(200).send("OK");
-
+    res.json({
+      success: true,
+      booking,
+    });
   } catch (error) {
-    console.log("❌ ERROR:", error.message);
+    console.log(error);
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: error.message,
-      stack: error.stack,
     });
   }
 });

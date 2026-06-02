@@ -68,47 +68,41 @@ export const createBooking = async (req, res) => {
   }
 };
 
-export const getMyBookings=async(req,res)=>{
-    try{
-        const bookings=await Booking.find({user:req.user._id}).populate("villa","name,photos,pricePerNight").sort("-createdAt")
-        res.status(200).json({
-            success:true,
-          
-            data:bookings
-        })
-    }
-    catch(error){
-        res.status(500).
-        json(
-            {
-                message:error.message
-            }
-        )
-    }
-}
+export const getMyBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find({ user: req.user._id })
+      .populate("villa", "name photos pricePerNight")
+      .sort("-createdAt");
 
-export const getAllBookings=async(req,res)=>{
-  try{
-    const bookings=await Booking.find().
-    populate("villa","name,photos,pricePerNight")
-    .populate("user","name,email")
-    .sort("-createdAt")
     res.status(200).json({
-        success:true,
-        count:bookings.length,
-        data:bookings
-    })
-
-
-
+      success: true,
+      data: bookings,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
   }
-  catch(error){
-    res.status(500).
-    json({
-        message:error.message
-    })
+};
+
+export const getAllBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find()
+      .populate("villa", "name photos pricePerNight")
+      .populate("user", "name email")
+      .sort("-createdAt");
+
+    res.status(200).json({
+      success: true,
+      count: bookings.length,
+      data: bookings,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
   }
-}
+};
 
 
 
