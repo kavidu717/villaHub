@@ -25,7 +25,7 @@ export const registerUser = async (req, res) => {
     const verificationToken = user.genetrateToken("verify"); 
     await user.save();
 
-    const verifyUrl = `${process.env.FRONTEND_URL}/verify/${verificationToken}`;
+    const verifyUrl = `https://villa-hub-front.vercel.app/verify/${verificationToken}`;
     
     const message = `
       <h1>Welcome to StayEase, ${name}!</h1>
