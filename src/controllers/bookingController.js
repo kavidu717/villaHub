@@ -104,6 +104,24 @@ export const getAllBookings = async (req, res) => {
   }
 };
 
+export const getVillaBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find({
+      villa: req.params.villaId,
+      status: "confirmed",
+    });
+
+    res.status(200).json({
+      success: true,
+      data: bookings,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 
 
 
